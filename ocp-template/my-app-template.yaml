@@ -1,0 +1,40 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: my-app-template
+objects:
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: {APP_NAME}-shared-secret
+  stringData:
+    password: {MY_SHARED_SECRET}
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: {APP_NAME}-service
+  spec:
+    ports:
+    - name: "web"
+      port: 8080
+- kind: Route
+  apiVersion: route.openshift.io/v1
+  metadata:
+    name: {APP_NAME}-route
+  spec:
+    host: {APP_NAME}.apps.example.com
+    port:
+      targetPort: 8080
+    to:
+      kind: Service
+      name: {APP_NAME}-service
+    
+parameters:
+- name: APP_NAME
+  value: my_default_app_name
+- name: MY_SHARED_SECRET
+  description: Password used for authentication between containers
+  from: '[A-Z0-9]{8}'
+  generate: expression
+  
+  
